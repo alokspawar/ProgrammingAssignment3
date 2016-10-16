@@ -1,0 +1,69 @@
+# Code-Book
+##  -  Data analysis of Activity Data from wearable device
+  ## Steps for Analysis of data
+  1. Download the data from URL https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
+  2. Extract the Zip file in Human Activity Dataset
+  3. Read the Test Files 
+              a. subjectTest = read.table('./test/subject_test.txt',header=FALSE)
+              b. xTest = read.table('./test/x_test.txt',header=FALSE)
+              c. yTest = read.table('./test/y_test.txt',header=FALSE)
+  4. Read the Training Files
+              a. subjectTrain = read.table('./train/subject_train.txt',header=FALSE)
+              b. xTrain = read.table('./train/x_train.txt',header=FALSE)
+              c. yTrain = read.table('./train/y_train.txt',header=FALSE)
+
+  5. Merge data test and train in 3 different dataset  ActivityDataSetX,ActivityDataSetY,ActivityDataSetSubject
+              a. ActivityDataSetX <- rbind(xTrain, xTest)
+              b. ActivityDataSetY <- rbind(yTrain, yTest)
+              c. ActivityDataSetSubject<-rbind(subjectTrain, subjectTest)
+  6. Extrat only mean and standard deviation realated columns from ActivityDataSetX data set using feature metadata file
+              ActivityDataSetMeanStd <- ActivityDataSetX[, grep("-(mean|std)\\(\\)", read.table("features.txt")[, 2])]
+  7. set the name for Dataset from feature meta files
+            names(ActivityDataSetMeanStd) <- read.table("features.txt")[grep("-(mean|std)\\(\\)", read.table("features.txt)[, 2]), 2]
+            names(ActivityDataSetY) <- "Activity"
+            names(ActivityDataSetSubject) <- "Subject"
+         
+  8. sample of column names extracted
+             [1] tBodyAcc-mean()-X           tBodyAcc-mean()-Y           tBodyAcc-mean()-Z          
+             [4] tBodyAcc-std()-X            tBodyAcc-std()-Y            tBodyAcc-std()-Z           
+             [7] tGravityAcc-mean()-X        tGravityAcc-mean()-Y        tGravityAcc-mean()-Z       
+            [10] tGravityAcc-std()-X         tGravityAcc-std()-Y         tGravityAcc-std()-Z        
+            [13] tBodyAccJerk-mean()-X       tBodyAccJerk-mean()-Y       tBodyAccJerk-mean()-Z      
+            [16] tBodyAccJerk-std()-X        tBodyAccJerk-std()-Y        tBodyAccJerk-std()-Z       
+            [19] tBodyGyro-mean()-X          tBodyGyro-mean()-Y          tBodyGyro-mean()-Z         
+            [22] tBodyGyro-std()-X           tBodyGyro-std()-Y           tBodyGyro-std()-Z          
+            [25] tBodyGyroJerk-mean()-X      tBodyGyroJerk-mean()-Y      tBodyGyroJerk-mean()-Z     
+            [28] tBodyGyroJerk-std()-X       tBodyGyroJerk-std()-Y       tBodyGyroJerk-std()-Z      
+            [31] tBodyAccMag-mean()          tBodyAccMag-std()           tGravityAccMag-mean()      
+            [34] tGravityAccMag-std()        tBodyAccJerkMag-mean()      tBodyAccJerkMag-std()      
+            [37] tBodyGyroMag-mean()         tBodyGyroMag-std()          tBodyGyroJerkMag-mean()    
+            [40] tBodyGyroJerkMag-std()      fBodyAcc-mean()-X           fBodyAcc-mean()-Y          
+            [43] fBodyAcc-mean()-Z           fBodyAcc-std()-X            fBodyAcc-std()-Y           
+            [46] fBodyAcc-std()-Z            fBodyAccJerk-mean()-X       fBodyAccJerk-mean()-Y      
+            [49] fBodyAccJerk-mean()-Z       fBodyAccJerk-std()-X        fBodyAccJerk-std()-Y       
+            [52] fBodyAccJerk-std()-Z        fBodyGyro-mean()-X          fBodyGyro-mean()-Y         
+            [55] fBodyGyro-mean()-Z          fBodyGyro-std()-X           fBodyGyro-std()-Y          
+            [58] fBodyGyro-std()-Z           fBodyAccMag-mean()          fBodyAccMag-std()          
+            [61] fBodyBodyAccJerkMag-mean()  fBodyBodyAccJerkMag-std()   fBodyBodyGyroMag-mean()    
+            [64] fBodyBodyGyroMag-std()      fBodyBodyGyroJerkMag-mean() fBodyBodyGyroJerkMag-std() 
+            477 Levels: angle(tBodyAccJerkMean),gravityMean) ... tGravityAccMag-std()
+   9. Combine all dataset
+            ActivityDataSet <- cbind(ActivityDataSetMeanStd, ActivityDataSetY, ActivityDataSetSubject)
+   10. set Appropriately labels the data set with descriptive variable names
+            names(ActivityDataSet) <- make.names(names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('Acc',"Acceleration",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('GyroJerk',"AngularAcceleration",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('Gyro',"AngularSpeed",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('Mag',"Magnitude",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('^t',"TimeDomain.",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('^f',"FrequencyDomain.",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('\\.mean',".Mean",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('\\.std',".StandardDeviation",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('Freq\\.',"Frequency.",names(ActivityDataSet))
+            names(ActivityDataSet) <- gsub('Freq$',"Frequency",names(ActivityDataSet))
+            View(ActivityDataSet)
+    11.  Aggregate the Data and Finalize the Data set         
+            FinalActivityDataSet<-aggregate(. ~Subject + Activity, ActivityDataSet, mean)
+            FinalActivityDataSet<-FinalActivityDataSet[order(FinalActivityDataSet$Subject,FinalActivityDataSet$Activity),]
+    
+              
