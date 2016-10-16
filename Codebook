@@ -66,4 +66,7 @@
             FinalActivityDataSet<-aggregate(. ~Subject + Activity, ActivityDataSet, mean)
             FinalActivityDataSet<-FinalActivityDataSet[order(FinalActivityDataSet$Subject,FinalActivityDataSet$Activity),]
     
-              
+    12.  Prepared 2nd tidy data set with the average of each variable for each activity and each subject.
+            FinalActivityDataSetWithAverage <- ddply(FinalActivityDataSet, .(Subject, Activity), .fun=function(x){ colMeans(x[,-c(1:2)]) })
+    
+          
